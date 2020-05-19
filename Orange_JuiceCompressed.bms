@@ -1,0 +1,24 @@
+endian little
+comtype mslzss
+append
+get Filesize asize
+idstring "LAG\x00"
+get unknZero long
+For SEEK_CUR < Filesize
+    getdstring NAME 16
+    savepos specsOffset
+    get WIDTH long
+    get HEIGHT long
+    get CompType long
+    get LENGTH long
+    savepos OFFSET
+    goto length 0 SEEK_CUR
+    string NAME + ".ojt"
+    log NAME 0 4
+    log NAME specsOffset 8
+    if comptype == 6
+        clog NAME OFFSET LENGTH 100000000000000
+    else
+        log NAME OFFSET LENGTH
+    endif
+Next
