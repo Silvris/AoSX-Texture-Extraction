@@ -11,7 +11,7 @@ def registerNoesisTypes():
 def texCheckType(data):
     bs = NoeBitStream(data)
     fileMagic = bs.readUInt()
-    if fileMagic == 0x47414c:
+    if fileMagic in (0x47414c,0x4d474c):
         return 1
     else:
         print("Fatal Error: Unknown file magic: " + str(hex(fileMagic) + " expected 0x47414c!"))
@@ -19,10 +19,14 @@ def texCheckType(data):
 
 def texLoadARGB(data, texList):
     bs = NoeBitStream(data)
-    bs.seek(4)
+    magic = bs.readUInt()
     width = bs.readUInt()
     height = bs.readUInt()
-    length = width*height*8
-    pix = rapi.imageDecodeRaw(bs.readBytes(length), width, height, "b16g16r16a16")
+    if(magic == 0x4d474c):
+        length = width*height
+        pix = rapi.imageDecodeDXT(bs.readBytes(length), width, height, noesis.NOESISTEX_DXT5)
+    else:
+        length = width*height*8
+        pix = rapi.imageDecodeRaw(bs.readBytes(length), width, height, "b16g16r16a16")
     texList.append(NoeTexture("OJTex", width, height, pix, noesis.NOESISTEX_RGBA32))
     return 1
